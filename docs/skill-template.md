@@ -56,4 +56,6 @@ Do not duplicate a mandatory heading and do not rename one. Section order for th
 ```bash
 bash scripts/validate-skills.sh          # from the repository root; exit code 1 on any failure
 ```
-It verifies frontmatter, name equals directory, description and file length, all mandatory headings, no duplicate headings, valid cross-references to other skills, and links to files inside the skill folder. It does not check technical accuracy or URL reachability.
+Also run `python scripts/check-triggers.py lint` after editing descriptions, and the real activation tests in [tests/triggers/README.md](../tests/triggers/README.md) for the affected skills.
+
+The structural script verifies frontmatter, name equals directory, description and file length, all mandatory headings, no duplicate headings, valid cross-references to other skills, and links to files inside the skill folder. It does not check technical accuracy or URL reachability.

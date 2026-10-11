@@ -25,11 +25,11 @@ Performed in Phase 1 below, following [references/repository-discovery.md](refer
 Follow [references/repository-discovery.md](references/repository-discovery.md). Output a short "repository profile" (Java version, **language mix: Java/Kotlin and Kotlin version if present**, build tool, app type, frameworks and versions, UI toolkit for mobile, test and quality commands, conventions). Do not guess what can be read from files. In a mixed Java/Kotlin repository, write new code in the language of the surrounding module or the language the user specified, and follow the interop rules in the framework skill (`java-mobile-development`, `spring-boot-engineering`).
 
 ### Phase 2: Select skills
-Activate only what the task needs. Examples:
+Activate only the skills whose domain the task touches, and **actually invoke each one with the Skill tool**: reading the table below does not load a skill's guidance. Do **not** skip a selected skill because the change is small - a one-line fix to a `CompletableFuture` chain still needs `java-core-engineering`, a one-line access rule still needs `spring-security-engineering`. Skip a skill only when the task does not touch its domain. Examples:
 
 | Task | Skills |
 |---|---|
-| Plain library or utility | `java-core-engineering`, `java-testing-quality` |
+| Plain library, utility or any non-framework Java code (release-level language features, concurrency/async, `java.time`/money, API compatibility) | `java-core-engineering`, `java-testing-quality` |
 | Spring REST endpoint | `java-web-development`, `spring-boot-engineering`, `java-testing-quality` |
 | DB-backed feature | `spring-boot-engineering`, `spring-data-jpa-engineering`, `hibernate-orm-engineering`, `java-database-engineering`, `java-testing-quality` |
 | Secured API | `java-web-development`, `spring-boot-engineering`, `spring-security-engineering`, `java-testing-quality` |

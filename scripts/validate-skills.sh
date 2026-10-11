@@ -75,6 +75,15 @@ if [ -d "$adapter" ]; then
   done
 fi
 
+# Claude bootstrap: must tell the agent to invoke the core skill first and name every skill
+cm="$(dirname "$root")/../adapters/claude/CLAUDE.md"
+if [ -f "$cm" ]; then
+  grep -q 'invoke the `java-engineering-core` skill first' "$cm" || err "adapter: adapters/claude/CLAUDE.md lacks the 'invoke java-engineering-core first' rule"
+  for d in $names; do
+    grep -q "\`$d\`" "$cm" || err "adapter: adapters/claude/CLAUDE.md does not mention skill '$d'"
+  done
+fi
+
 # every skill name must be unique (directories are unique by construction)
 echo "skills checked: $(echo "$names" | wc -w)"
 if [ "$fail" -eq 0 ]; then echo "OK: all structural checks passed"; else echo "FAILED: $fail problem(s)"; exit 1; fi

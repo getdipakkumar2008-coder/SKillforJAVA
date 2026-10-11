@@ -3,7 +3,7 @@
 #
 # Usage: scripts/install-skills.sh <target-repo> [options]
 #   --agent claude|copilot|both   default: both
-#       claude  -> skills in <target>/.claude/skills
+#       claude  -> skills in <target>/.claude/skills + <target>/CLAUDE.md bootstrap (if absent)
 #       copilot -> skills in <target>/.github/skills + Copilot instruction files
 #       both    -> skills in <target>/.claude/skills (GitHub Copilot also reads this folder)
 #                  + Copilot instruction files in <target>/.github
@@ -16,6 +16,7 @@ set -eu
 here="$(cd "$(dirname "$0")/.." && pwd)"
 src_skills="$here/.claude/skills"
 src_copilot="$here/adapters/copilot"
+src_claude="$here/adapters/claude/CLAUDE.md"
 
 target=""; agent="both"; only=""; force=0; dry=0
 while [ $# -gt 0 ]; do
@@ -67,6 +68,15 @@ for s in $list; do
   echo "$verb skill: $s -> $dest"; installed=$((installed + 1))
 done
 
+if [ "$agent" = "claude" ] || [ "$agent" = "both" ]; then
+  if [ -e "$target/CLAUDE.md" ] && [ "$force" -eq 0 ]; then
+    echo "skip (exists): $target/CLAUDE.md  - add the contents of adapters/claude/CLAUDE.md to it (the rule 'invoke java-engineering-core first' is what makes the core skill load reliably)"
+  else
+    run cp "$src_claude" "$target/CLAUDE.md"
+    echo "$verb: $target/CLAUDE.md"
+  fi
+fi
+
 if [ "$agent" = "copilot" ] || [ "$agent" = "both" ]; then
   gh="$target/.github"
   run mkdir -p "$gh/instructions"
@@ -90,4 +100,7 @@ fi
 echo "done: $installed skill(s) installed, $skipped skipped$([ "$dry" -eq 1 ] && echo ' (dry run)')"
 if [ "$agent" != "claude" ]; then
   echo "note: the Copilot instruction files reference every skill by name; if you installed a subset, trim the table in copilot-instructions.md."
+fi
+if [ "$agent" != "copilot" ] && [ -n "$only" ]; then
+  echo "note: CLAUDE.md lists every skill; if you installed a subset, trim its table."
 fi

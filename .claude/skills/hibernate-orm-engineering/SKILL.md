@@ -1,6 +1,6 @@
 ---
 name: hibernate-orm-engineering
-description: Diagnose and tune Hibernate ORM runtime behaviour in Java/Spring apps - persistence context and entity lifecycle, lazy vs eager loading, N+1 queries, fetch joins, entity graphs, projections, cascades and orphan removal, dirty checking and flush, first/second-level cache, batching, optimistic/pessimistic locking, equals/hashCode pitfalls, SQL inspection and schema generation vs migrations. Use for slow or incorrect persistence behaviour, LazyInitializationException, extra SQL, or mapping design. Pair with spring-data-jpa-engineering.
+description: Diagnose and tune Hibernate ORM runtime behaviour in Java/Spring apps - persistence context and entity lifecycle, lazy vs eager loading, N+1 queries, fetch joins, entity graphs, projections, cascades and orphan removal, dirty checking and flush, first/second-level cache, batching, optimistic/pessimistic locking, equals/hashCode pitfalls, SQL inspection and schema generation vs migrations. Use for slow or incorrect persistence behaviour, LazyInitializationException, hundreds of SELECTs, save or merge of a detached entity overwriting fields with null, unexpected updates or deletes, or mapping design. Pair with spring-data-jpa-engineering.
 ---
 
 # Hibernate ORM Engineering
