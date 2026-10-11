@@ -19,10 +19,11 @@ The skills are actionable procedures, not tutorials. A task activates only the s
 | [docs/skill-template.md](docs/skill-template.md) | The mandatory SKILL.md template and writing rules |
 | [docs/copilot-adapter.md](docs/copilot-adapter.md) | GitHub Copilot compatibility, instruction files, installer |
 | `adapters/copilot/` | Copilot repository-wide and path-specific instruction templates |
+| `adapters/claude/CLAUDE.md` | Claude Code bootstrap: invoke `java-engineering-core` first, skill table, non-negotiables |
 | `scripts/install-skills.sh` | Install skills (and Copilot instructions) into another repo |
+| [tests/triggers/](tests/triggers/README.md) | Trigger test cases (68 prompts) for the skill descriptions |
+| `scripts/check-triggers.py` | Runs trigger tests: `lint`, `lexical` (offline heuristic), `claude` (real, spends credits) |
 | `scripts/validate-skills.sh` | Repeatable structural validation of all skills |
-| `Requirement.md` | Requirements analysis of the original master prompt |
-| `New Text Document.txt` | The original master prompt |
 
 ## Install
 
@@ -47,7 +48,7 @@ bash scripts/install-skills.sh /path/to/project --agent copilot # Copilot only (
 bash scripts/install-skills.sh /path/to/project --skills spring-boot-engineering,java-testing-quality --dry-run
 ```
 
-Nothing is overwritten without `--force`. Details, what GitHub documents, and what is untested: [docs/copilot-adapter.md](docs/copilot-adapter.md).
+For Claude Code the installer also adds a root `CLAUDE.md` (from `adapters/claude/CLAUDE.md`) telling the agent to invoke `java-engineering-core` first. Trigger tests showed that descriptions alone do not reliably load skills for generic Java requests, while this rule makes the core skill load every time (see [tests/triggers/README.md](tests/triggers/README.md)). If you already have a `CLAUDE.md`, merge it in by hand. Nothing is overwritten without `--force`. Details, what GitHub documents, and what is untested: [docs/copilot-adapter.md](docs/copilot-adapter.md).
 
 Suggested sets:
 
@@ -101,6 +102,7 @@ Spec Kit command names and file layout have changed between versions; the skill 
 - Re-check the "Version awareness" section of each skill when major releases ship (Spring Boot, Spring Security, Hibernate, Spring AI, JUnit, AGP, Spec Kit). The snapshot is in [docs/official-sources.md](docs/official-sources.md).
 - Claude Code guidance: keep `SKILL.md` under 500 lines and descriptions well under the 1,536-character listing cap; put detail in `references/`.
 - Follow [docs/skill-template.md](docs/skill-template.md) for every skill and re-run `bash scripts/validate-skills.sh` after any edit (frontmatter, template headings, cross-references, size limits).
+- After changing a `description`, run `python scripts/check-triggers.py lint` (free) and, for the affected skills, `python scripts/check-triggers.py claude --ids <case ids> --yes` (real activation, spends credits). See [tests/triggers/README.md](tests/triggers/README.md).
 - Add a framework-specific skill (rather than stretching an existing one) when a new stack is needed, for example a cross-platform mobile framework, Quarkus, or Micronaut.
 
 ## Limitations

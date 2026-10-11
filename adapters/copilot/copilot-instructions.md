@@ -10,7 +10,7 @@ This repository uses a Java engineering skill base (agent skills, also readable 
 ## Which skill for which task
 | Task | Skill |
 |---|---|
-| Plain Java code, language features, concurrency | `java-core-engineering` |
+| Plain Java code: release-level language features, concurrency/async, `java.time`/money, API compatibility | `java-core-engineering` |
 | Structure, boundaries, ADRs | `java-architecture-design` |
 | REST/web layer, validation, errors, OpenAPI | `java-web-development` |
 | Spring Boot config, tests, Actuator, packaging | `spring-boot-engineering` |

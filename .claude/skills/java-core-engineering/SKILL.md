@@ -1,6 +1,6 @@
 ---
 name: java-core-engineering
-description: Core Java language and runtime guidance for writing or modifying plain Java code - records, sealed types, generics, collections, streams, exceptions, immutability, concurrency, virtual threads, CompletableFuture, java.time, I/O, JVM memory/GC, null handling and API design. Use for any Java code change that is not framework-specific, or when choosing language features for a project's Java release. Pair with java-engineering-core.
+description: Version-aware rules for writing or changing plain (non-framework) Java - utilities, libraries, domain logic, refactors to modern syntax, async and thread-safety bugs. Covers gating language features and APIs by the project's Java release (records, sealed types, pattern matching, virtual threads, no preview features), choosing a concurrency model (executors, CompletableFuture with timeouts and error handling, virtual threads), java.time and BigDecimal money handling, null, Optional and exception conventions, resource handling, immutability, streams vs loops, and public API and binary compatibility including Kotlin callers. Use before writing or modifying Java code. Pair with java-engineering-core.
 ---
 
 # Java Core Engineering

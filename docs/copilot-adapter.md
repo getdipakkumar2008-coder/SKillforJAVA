@@ -68,7 +68,7 @@ Spec Kit documents `specify init <project> --integration copilot` (the integrati
 |---|---|
 | Claude Code-only frontmatter (`disable-model-invocation`, `context: fork`, `paths`, hooks) | Not used by these skills, so nothing is lost in Copilot |
 | `CLAUDE.md` references in skills | Skills also name `AGENTS.md` and now `.github/copilot-instructions.md` as instruction files to read |
-| Skill activation quality in Copilot | **Untested.** Descriptions are written for keyword/semantic matching; no trigger tests were run in either agent |
+| Skill activation quality in Copilot | **Untested.** The trigger harness (`scripts/check-triggers.py`, `tests/triggers/`) drives Claude Code only, and was run on a 3-case sample; the cases and descriptions could be reused to test Copilot manually or with its own tooling |
 | Copilot behaviour on `references/` files | GitHub says skill folder files are made available on activation; whether links like `references/definition-of-done.md` are followed automatically is **not documented** - the core skill states them as links and the instruction bootstrap tells the agent to open `SKILL.md` files itself |
 | Code review surface | GitHub notes a review-focused directory name helps; `java-code-review` includes "code-review" in its name. Instruction length limits for code review are not documented on the page fetched - keep instruction files short |
 | `allowed-tools` / permissions | Not set; Copilot will ask before tool use per its own policy |
