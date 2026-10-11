@@ -16,7 +16,7 @@ Calling external HTTP APIs; publishing/consuming messages; adding retries, DLQs 
 - Retry/concurrency-limit support was added to the core Spring Framework in recent generations (`@Retryable`, `@ConcurrencyLimit` in Framework 7); I could not confirm the exact reference page - verify in https://docs.spring.io/spring-framework/reference/ for the repo's version before using. Spring Retry (separate project) is no longer Boot-managed in Boot 4 (per Boot 4.0 migration guide), so pin deliberately if used. Resilience4j is a common circuit-breaker library; check its current Spring Boot compatibility.
 - HTTP clients: `RestClient` (blocking), `WebClient` (reactive), `@HttpExchange` interface clients - use what the repo uses.
 
-## Required context
+## Required context and inputs
 Existing broker/clients, delivery requirements (at-most/at-least/effectively-once), ordering needs, volume and latency, consumers and their independence, data ownership, failure tolerance, who owns the contract, schema registry presence.
 
 ## Repository inspection

@@ -25,7 +25,7 @@ Adding or changing endpoints, controllers, views, request/response models, error
 - Servlet/Spring MVC vs reactive WebFlux: follow the repo; do not mix without need.
 - Thymeleaf: https://www.thymeleaf.org/documentation.html · Vaadin: https://vaadin.com/docs.
 
-## Required context
+## Required context and inputs
 Web stack (MVC/WebFlux/Vaadin/Thymeleaf), API style and error format, auth model, existing DTO/mapping approach (MapStruct, manual), OpenAPI tooling, client consumers and compatibility promises.
 
 ## Repository inspection

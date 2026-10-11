@@ -19,10 +19,13 @@ Build/compile/test failure; dependency or classpath error; application will not 
 - Hibernate: 7.4 latest stable, 7.2/6.6 limited support (hibernate.org/orm/releases). Read that version's Migration Guide.
 - Always target the **repo's** versions when diagnosing; never recommend an upgrade as the first fix unless the evidence points to a bug fixed there.
 
-## Required context
+## Required context and inputs
 Exact error text and full stack trace, command run, environment (JDK vendor/version, OS, build tool and wrapper version), recent changes (`git log`/diff if available), versions of relevant libraries, whether it fails locally/CI/prod.
 
-## Troubleshooting workflow
+## Repository inspection
+Gather the facts a diagnosis depends on: exact versions (JDK, build tool and wrapper, Boot/Spring/Hibernate/Security, Android Gradle Plugin, Kotlin), the resolved dependency tree, profiles and config in effect, recent commits and dependency changes (`git log`, lock/catalog diffs), CI logs versus local behaviour, existing test failures at baseline, and whether the failure is deterministic.
+
+## Workflow
 1. **Reproduce.** Run the failing command; capture the first error (not the last cascade). Find the minimal repro (single test, single module, `--offline` off/on).
 2. **Read the evidence.** Root cause is usually in the *first* `Caused by:` and in `FailureAnalyzer` output; read warnings above it.
 3. **Form hypotheses** ranked by evidence; test one at a time with the cheapest experiment (dependency tree, debug flag, minimal test).
@@ -78,6 +81,13 @@ If the problem cannot be reproduced locally (missing infrastructure, prod-only),
 - One change at a time when diagnosing; revert failed experiments.
 - Never run destructive commands against shared environments (drop, clean, repair, force-push) without explicit authorisation.
 - Do not paste secrets from logs/config into reports.
+
+## Implementation guidance
+- Fix at the layer where the cause lives (build configuration, dependency alignment, wiring, mapping, query, configuration) with the smallest change; keep the diff reviewable.
+- Align versions through the BOM/`dependencyManagement` or version catalog rather than adding overrides; remove temporary diagnostics, properties migrators and debug logging before finishing.
+- Prefer deprecation-free replacements named in the official migration guide; apply automated refactoring recipes only after reviewing their diff.
+- Add a regression test for the failure mode where feasible; document non-obvious fixes in the commit message or a short comment explaining *why*.
+- For upgrades, commit per step (Java baseline, BOM, dependent libraries, code changes) so any step can be reverted.
 
 ## Security and reliability requirements
 Logs, dumps and configs may contain secrets/PII: redact before sharing; do not commit dumps. Temporary debug logging must be removed before finishing. Upgrades must keep security fixes (do not pin vulnerable versions to "make it work"). Have a rollback plan for production-facing upgrades.

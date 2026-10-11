@@ -17,7 +17,7 @@ Adding/changing authentication, authorization rules, token validation, login flo
 - Idioms stable across 6.x/7.x: `SecurityFilterChain` beans, lambda DSL, `authorizeHttpRequests`, `@EnableMethodSecurity`. `WebSecurityConfigurerAdapter` and `authorizeRequests` are legacy - do not introduce them.
 - Reference pages: Servlet > OAuth2 Resource Server (JWT, Opaque Token, DPoP), OAuth2 Log In, Authorization Architecture / Authorize HTTP Requests, Method Security, CSRF, CORS, Session Management, Password Storage, Testing. https://docs.spring.io/spring-security/reference/
 
-## Required context
+## Required context and inputs
 Architecture (SSR with sessions vs stateless API vs SPA vs mobile client), identity provider (Keycloak, Entra ID, Okta, Auth0, in-house), token format and issuer, required roles/scopes/permissions model, tenancy, existing `SecurityFilterChain`s, Spring Security + Boot versions, current test setup.
 
 ## Repository inspection

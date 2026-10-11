@@ -1,0 +1,37 @@
+# Java engineering instructions
+
+This repository uses a Java engineering skill base (agent skills, also readable by Copilot). Skills live in `.github/skills/` or `.claude/skills/`; each has a `SKILL.md` with its procedure.
+
+## How to work on Java tasks
+1. **Start with `java-engineering-core`**: discover the repository (Java and Kotlin versions, build tool and wrapper, app type, frameworks and versions, test and quality commands, conventions), then select only the skills the task needs.
+2. Plan the smallest change that meets the acceptance criteria, implement within existing conventions, verify, and report.
+3. If your client does not load skills automatically, open the relevant `SKILL.md` yourself before acting.
+
+## Which skill for which task
+| Task | Skill |
+|---|---|
+| Plain Java code, language features, concurrency | `java-core-engineering` |
+| Structure, boundaries, ADRs | `java-architecture-design` |
+| REST/web layer, validation, errors, OpenAPI | `java-web-development` |
+| Spring Boot config, tests, Actuator, packaging | `spring-boot-engineering` |
+| Entities, repositories, queries, migrations | `spring-data-jpa-engineering` |
+| N+1, lazy loading, flush, caching, locking | `hibernate-orm-engineering` |
+| AuthN/AuthZ, OAuth2/JWT, CORS/CSRF, secrets | `spring-security-engineering` |
+| Schema, indexes, isolation, pools | `java-database-engineering` |
+| Tests and quality gates | `java-testing-quality` |
+| HTTP clients, Kafka/RabbitMQ, idempotency, retries | `java-messaging-integration` |
+| Profiling, timeouts, circuit breakers, caching | `java-performance-resilience` |
+| Docker, CI/CD, observability, rollout | `java-production-deployment` |
+| Android (Java, Kotlin interop, Jetpack/Compose) | `java-mobile-development` |
+| LLM/RAG/tool-calling features | `java-ai-integration` |
+| Build/startup failures, upgrades | `java-maintenance-troubleshooting` |
+| Reviewing a diff or PR | `java-code-review` |
+| Spec Kit / spec-driven work | `java-spec-driven-development` |
+
+## Non-negotiables
+- Respect the repository's Java, Kotlin and framework versions; do not upgrade, convert languages, or add dependencies as a side effect.
+- Never claim a build, test or check passed unless you ran it and saw the result; say what was not run.
+- Never delete, skip or weaken a failing test, and never disable a security control, to get a green build.
+- Enforce authorization on the server; no secrets in code, config, tests or logs; validate untrusted input; bound timeouts, retries and concurrency.
+- Keep Spring Boot, Spring Security, JPA, Hibernate, web and Android guidance separate; do not apply backend patterns to Android UI code.
+- Spec Kit (if used) owns requirements, plan and tasks; implement and verify them, and record deviations instead of editing the spec to fit the code.

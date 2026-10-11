@@ -26,7 +26,7 @@ Task adds/changes entities, repositories, queries, migrations, transactions, aud
 - Use the versions the repository already pins. Hibernate 6 -> 7 and Boot 3 -> 4 upgrades are a separate task (`java-maintenance-troubleshooting`).
 - Verify annotations and properties in https://docs.spring.io/spring-data/jpa/reference/ for the repo's version before using them.
 
-## Required context
+## Required context and inputs
 Database engine and version, migration tool, existing entity/repository conventions, transaction style, test setup (Testcontainers vs H2), Hibernate and Spring Data versions, whether schema is shared with other services.
 
 ## Repository inspection
@@ -60,6 +60,7 @@ Database engine and version, migration tool, existing entity/repository conventi
 
 ## Implementation guidance
 - Entities: no-arg constructor (protected), no `final` on class/persistent fields where the provider needs proxies; avoid Lombok `@Data`/`@EqualsAndHashCode`/`@ToString` on entities (loads lazies, breaks proxies, cycles).
+- Kotlin entities (mixed repos): use the `kotlin-jpa` (no-arg) and `kotlin-spring`/all-open compiler plugins so entities are non-final and have a no-arg constructor; avoid `data class` entities (generated `equals/hashCode/toString` touch lazy associations); prefer nullable/`lateinit` handling consistent with the repo; verify plugin setup in the Spring Kotlin docs.
 - `equals/hashCode`: based on a business key or a stable id strategy; never on mutable fields; see Hibernate skill for pitfalls.
 - Enums: `@Enumerated(EnumType.STRING)`, never ordinal.
 - Time: `Instant`/`OffsetDateTime`/`LocalDate`; store UTC.

@@ -15,7 +15,7 @@ All skills live in `.claude/skills/<name>/SKILL.md`. Always start with `java-eng
 | 2 Domain | `java-messaging-integration` | HTTP clients, Kafka/RabbitMQ/JMS, idempotency, retries, DLQ, outbox | No new broker without a requirement |
 | 2 Domain | `java-performance-resilience` | Profiling, GC, pools, timeouts, circuit breakers, caching, load tests | Evidence before optimisation |
 | 2 Domain | `java-production-deployment` | Logging/metrics/tracing, Actuator probes, Docker, CI/CD, secrets, rollout/rollback | Fits the project's actual platform |
-| 2 Domain | `java-mobile-development` | Native Android in Java | Not Spring; not cross-platform frameworks |
+| 2 Domain | `java-mobile-development` | Native Android in Java | Java-first, mixed Java/Kotlin and Compose-aware; not Spring; not cross-platform frameworks |
 | 2 Domain | `java-ai-integration` | LLM calls, RAG, tools, evaluation, cost and safety | Model is untrusted; rules stay deterministic |
 | 3 Framework | `spring-boot-engineering` | Boot config, beans, auto-configuration, Boot tests, Actuator, packaging | Not persistence or security design |
 | 3 Framework | `spring-data-jpa-engineering` | Entities, repositories, queries, transactions, migrations, auditing | Pair with Hibernate skill for runtime behaviour |

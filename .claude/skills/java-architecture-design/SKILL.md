@@ -15,7 +15,7 @@ New module/service/package design; "where should this code live?"; restructuring
 - Spring Modulith (https://spring.io/projects/spring-modulith) lists **2.1.1**: application modules organised around the domain, structure verification, per-module integration tests, module-level observability, generated component documentation. Its Boot compatibility is on the project's Version Mappings page - check before use. It is an option for modular monoliths on Spring Boot, not a requirement.
 - Architecture guidance here is version-independent; language features (records, sealed types, pattern matching) depend on the repo's Java release - see `java-core-engineering`.
 
-## Required context
+## Required context and inputs
 Business capabilities and rate of change, team size/structure, deployment constraints, scale and availability needs, data ownership, existing architecture and ADRs, non-functional requirements (latency, compliance, security), what is painful today.
 
 ## Repository inspection

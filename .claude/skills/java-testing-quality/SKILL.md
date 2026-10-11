@@ -16,10 +16,13 @@ New or changed behaviour; bug fix (write the failing test first); failing/flaky 
 - Spring Boot 4: `@MockBean`/`@SpyBean` removed (use `@MockitoBean`/`@MockitoSpyBean`); `@SpringBootTest` does not auto-provide MockMvc/`TestRestTemplate`/`WebClient` (add `@AutoConfigureMockMvc` / `@AutoConfigureTestRestTemplate`); test starters are paired per technology. Boot 3.x keeps `@MockBean`. Details in `spring-boot-engineering`.
 - Testcontainers: its getting-started guide pins example versions (e.g. 1.19.x) that may be outdated; take the version from the repo or the Spring Boot BOM, and check https://testcontainers.com/ for current coordinates and module names before adding one.
 
-## Required context
+## Required context and inputs
 Test framework and versions, test layout and naming (`*Test`, `*IT`), build commands, CI checks, container runtime availability, what behaviour/acceptance criteria must be proven.
 
-## Decision rules - choose the lowest useful level
+## Repository inspection
+Read how tests already work before writing one: build files for JUnit generation (4/5/6), Mockito/AssertJ/Testcontainers/Awaitility, surefire/failsafe or Gradle test-suite configuration, test source sets and naming (`*Test`, `*IT`, `src/integrationTest`, `src/androidTest`), existing slices and base classes, fixtures/builders, container runtime availability, CI test commands, and configured formatters, static analysis and coverage tools. Follow what exists.
+
+## Decision rules
 | Need | Test type |
 |---|---|
 | Pure business logic | Plain unit test, no Spring, no mocks of value types |
@@ -54,6 +57,7 @@ Test framework and versions, test layout and naming (`*Test`, `*IT`), build comm
 - **Spring slices:** keep the context minimal; import only needed config; prefer `@MockitoBean` (Boot 4) / `@MockBean` (Boot 3) sparingly because each distinct combination creates a new cached context.
 - **Testcontainers:** share containers per test class/suite (static/`@ServiceConnection` bean or singleton) rather than per test; pin image tags; reuse across tests only if state is reset (truncate/transaction rollback). Requires a running container runtime - state clearly if absent.
 - **Security tests:** use Spring Security test support (`@WithMockUser`, JWT post-processors) and assert 401/403 for unauthenticated/unauthorized, plus allowed paths. Never disable security in tests to make them pass.
+- **Mixed Java/Kotlin and Compose:** keep tests in the language of the code under test unless the repo says otherwise; MockK is common for Kotlin (Mockito for Java); Compose UI tests use `createComposeRule`/`createAndroidComposeRule` in a Kotlin test source set; enable Android lint `Interoperability` checks for boundaries between languages.
 - **Async:** await conditions (Awaitility) with timeouts; never `Thread.sleep` as synchronization.
 - **Flakiness:** find the root cause (time, ordering, shared state, ports, async); do not add retries or ignore the test as the fix.
 - **Static analysis/formatting:** run what the build already defines (Spotless, Checkstyle, PMD, SpotBugs, Error Prone, Sonar); do not weaken rules or add suppressions without a reason recorded in code.
@@ -75,7 +79,7 @@ Test framework and versions, test layout and naming (`*Test`, `*IT`), build comm
 - Chasing 100% coverage with assertion-free tests.
 - Reporting "tests pass" without running them or without noting which tests were not run.
 
-## Testing and verification (of this skill's own work)
+## Testing and verification
 Show the test command and its real result. Confirm the new test fails without the fix (for bugs) and passes with it. Run the module build and configured quality tasks (`./mvnw verify`, `./gradlew check`, Android `./gradlew testDebugUnitTest`, `connectedDebugAndroidTest`). List anything that could not run (no Docker, no emulator, offline dependency resolution).
 
 ## Definition of done

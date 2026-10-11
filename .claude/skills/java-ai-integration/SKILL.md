@@ -17,7 +17,7 @@ A task adds or changes LLM chat/completion, embeddings, RAG, vector search, tool
 - Provider SDKs (Anthropic, OpenAI, etc.) and model ids change often: take model ids and parameters from the provider's current official docs, not memory. For Claude models use the Anthropic documentation (and the `claude-api` skill if available).
 - OWASP Top 10 for LLM Applications **2025**: Prompt Injection, Sensitive Information Disclosure, Supply Chain, Data and Model Poisoning, Improper Output Handling, Excessive Agency, System Prompt Leakage, Vector and Embedding Weaknesses, Misinformation, Unbounded Consumption (https://genai.owasp.org/llm-top-10/). Treat as the baseline threat model.
 
-## Required context
+## Required context and inputs
 The user-facing behaviour and what a wrong answer costs; data sensitivity (PII, secrets, regulated data) and whether it may leave the organisation; provider/hosting constraints (cloud API vs self-hosted, region); latency and cost budgets; which actions the AI may trigger; existing auth model; existing observability and test setup.
 
 ## Repository inspection

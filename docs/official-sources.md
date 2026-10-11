@@ -63,6 +63,10 @@ Authoritative sources used to build the skills, their intended use, and the vers
 | Architecture | https://developer.android.com/topic/architecture | Layers, UDF, offline-first | fetched |
 | Security checklist | https://developer.android.com/privacy-and-security/security-tips | Network, storage, IPC, WebView, tokens | fetched. Note: `.../privacy-and-security` (landing page in the prompt) returned 404 |
 | Java/JDK for Android builds | https://developer.android.com/build/jdks | JDK and source levels | fetched: AGP 8.x requires JDK 17 |
+| Kotlin-Java interop | https://developer.android.com/kotlin/interop | Nullability, `@Jvm*`, SAM, `Unit`, lint `Interoperability` | fetched. Does **not** cover coroutines/`suspend`/`Flow` from Java or varargs |
+| Compose and Views interop | https://developer.android.com/develop/ui/compose/migrate/interoperability-apis | `ComposeView`, `AndroidView` | fetched: overview only; composition strategy, `observeAsState`/`collectAsStateWithLifecycle`, theming from general knowledge |
+| Jetpack | https://developer.android.com/jetpack | Library overview; Java-friendly artefact variants | **not fetched**; artefact names from general knowledge |
+| Kotlin in Spring | https://docs.spring.io/spring-framework/reference/languages/kotlin.html | `kotlin-spring`/`kotlin-jpa` plugins, null-safety, coroutines | fetched: intro and section list only; details from general knowledge |
 | OWASP MASVS/MASTG | https://mas.owasp.org/ | Mobile security verification | link-checked |
 
 ## Operations and security
@@ -81,6 +85,9 @@ Authoritative sources used to build the skills, their intended use, and the vers
 |---|---|---|---|
 | Spec Kit | https://github.com/github/spec-kit ; https://github.github.io/spec-kit/ | Spec-driven workflow | fetched: Specify -> Plan -> Tasks -> Implement -> Converge; hyphenated `/speckit-*` commands; artifact paths and Claude integration details **not confirmed** |
 | Claude Code skills | https://code.claude.com/docs/en/skills (redirect from docs.claude.com) | Skill format | fetched: only `name`/`description` needed; keep SKILL.md under 500 lines; description cap 1,536 chars; project path `.claude/skills/` |
+| GitHub Copilot agent skills | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills ; https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills | Copilot skill locations, surfaces, frontmatter | fetched 2026-10-11: reads `.github/skills`, `.claude/skills`, `.agents/skills`; frontmatter fields not fully documented on the concept page |
+| GitHub Copilot custom instructions | https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions | `copilot-instructions.md`, `*.instructions.md` with `applyTo`, `AGENTS.md` | fetched 2026-10-11 |
+| Agent Skills specification | https://agentskills.io/specification | Portable SKILL.md rules (name <= 64, description <= 1024) | fetched 2026-10-11 |
 
 ## Maintenance procedure
 

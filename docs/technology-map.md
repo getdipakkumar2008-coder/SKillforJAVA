@@ -74,6 +74,7 @@ Android app (Java)                          Spring Boot backend
 
 - The Android client is **untrusted**: no server credentials, no authoritative authorization; tokens via OAuth 2.0 + PKCE, stored with Keystore-backed encryption.
 - Do not apply Spring layering or `javax`/server idioms inside the app.
+- Language/toolkit mix: Android repos are often mixed Java/Kotlin with Views and/or Jetpack Compose. Compose is Kotlin-first; Java hosts it via `ComposeView`. Java/Kotlin boundaries follow the interop rules in `java-mobile-development` (nullability annotations, `@Jvm*`, no `suspend`/`Flow` exposed to Java). On the server, Kotlin-on-Spring needs the `kotlin-spring` and `kotlin-jpa` plugins (`spring-boot-engineering`, `spring-data-jpa-engineering`).
 - Skill: `java-mobile-development` for the client; `java-web-development`, `spring-security-engineering` for the server side of the contract. Cross-platform mobile frameworks need their own skill.
 
 ## Build and test tooling

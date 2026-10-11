@@ -16,7 +16,7 @@ LazyInitializationException, N+1 or slow queries, unexpected updates/deletes, ma
 ## Version awareness (checked 2026-10-11)
 Per hibernate.org: 7.4 latest stable; 7.2 and 6.6 limited support; 8.0 beta. 7.x targets Jakarta Persistence 3.2 (Java 17+); 6.6 targets 3.1 (Java 11+). Use the version the repo resolves (`mvn dependency:tree` / `gradle dependencies`). Do not rely on remembered property names or HQL behaviour across 5 -> 6 -> 7: check https://hibernate.org/orm/documentation/ (User Guide and Migration Guide for that version).
 
-## Required context
+## Required context and inputs
 Hibernate version, Spring Data/Boot versions, DB engine, mapping of the affected entities, the failing use case (endpoint/method), actual SQL and row counts, transaction boundaries.
 
 ## Repository inspection

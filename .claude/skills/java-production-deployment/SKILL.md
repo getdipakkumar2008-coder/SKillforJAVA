@@ -17,7 +17,7 @@ Dockerfile/image work; Kubernetes/ECS/Cloud Run/VM deployment descriptors; CI/CD
 - Docker: https://docs.docker.com/ · OpenTelemetry: https://opentelemetry.io/docs/ (Java agent/SDK versions and semantic conventions evolve - check current docs).
 - Use the Java version and Boot version already in the repo; base-image choice must match the supported Java runtime.
 
-## Required context
+## Required context and inputs
 Target platform (Kubernetes, ECS, Cloud Run, VM, PaaS), registry, CI system, environments (dev/test/stage/prod) and promotion rules, secret store, observability stack (Prometheus/Grafana, Datadog, ELK, OTLP backend), traffic pattern and SLOs, database migration timing, rollback policy.
 
 ## Repository inspection
@@ -50,7 +50,9 @@ Target platform (Kubernetes, ECS, Cloud Run, VM, PaaS), registry, CI system, env
 7. Verify locally as far as possible (image build, container run, probes, shutdown with `docker stop`, scans); document what only the real environment can confirm.
 8. Report with assumptions about the target environment.
 
-## Observability guidance
+## Implementation guidance
+Build images and pipelines per the decision rules and workflow above; observability implementation:
+
 - **Logging:** SLF4J/Logback (or the repo's choice); structured (JSON) logs to stdout where the platform collects them; include trace/correlation ids (MDC); consistent levels; actionable messages; no secrets/PII/tokens; avoid per-request debug in production; log security events.
 - **Metrics:** Micrometer via Actuator; RED/USE signals (rate, errors, duration; saturation of pools/queues/threads); JVM metrics (heap, GC, threads); DB pool metrics; business metrics sparingly; control tag cardinality (no user ids/URLs with ids as tags).
 - **Tracing:** OpenTelemetry (Java agent for quick coverage or Micrometer Tracing/OTel SDK integration) with W3C trace context propagation across HTTP and messaging; sampling configured; exporter endpoint via env vars (`OTEL_*`); check the repo's existing choice before adding another.

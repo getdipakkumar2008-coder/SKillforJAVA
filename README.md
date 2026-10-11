@@ -16,6 +16,11 @@ The skills are actionable procedures, not tutorials. A task activates only the s
 | [docs/technology-map.md](docs/technology-map.md) | How Java, Spring, JPA, Hibernate, web and Android relate |
 | [docs/official-sources.md](docs/official-sources.md) | Source register and version snapshot |
 | [docs/validation-report.md](docs/validation-report.md) | What was checked, what was not, known gaps |
+| [docs/skill-template.md](docs/skill-template.md) | The mandatory SKILL.md template and writing rules |
+| [docs/copilot-adapter.md](docs/copilot-adapter.md) | GitHub Copilot compatibility, instruction files, installer |
+| `adapters/copilot/` | Copilot repository-wide and path-specific instruction templates |
+| `scripts/install-skills.sh` | Install skills (and Copilot instructions) into another repo |
+| `scripts/validate-skills.sh` | Repeatable structural validation of all skills |
 | `Requirement.md` | Requirements analysis of the original master prompt |
 | `New Text Document.txt` | The original master prompt |
 
@@ -30,6 +35,19 @@ Skills follow the Claude Code format (`.claude/skills/<name>/SKILL.md`, frontmat
    Copy `java-engineering-core` (including `references/`) plus the skills relevant to that project. Skills refer to each other by name; a missing skill is tolerated (the core skill says to continue and note the gap), but you get the best results with the set you need.
 2. **For all your projects** - copy into `~/.claude/skills/` (Windows: `%USERPROFILE%\.claude\skills\`).
 3. **Work inside this repository** - the skills are already in `.claude/skills/` here.
+
+### Installer and GitHub Copilot
+
+The skills use the open Agent Skills format, which GitHub Copilot also reads (from `.github/skills`, `.claude/skills` or `.agents/skills`). A helper installs them into another repository, optionally with Copilot instruction files:
+
+```bash
+bash scripts/install-skills.sh /path/to/project                 # Claude Code + Copilot (default)
+bash scripts/install-skills.sh /path/to/project --agent claude  # Claude Code only
+bash scripts/install-skills.sh /path/to/project --agent copilot # Copilot only (.github/skills + instructions)
+bash scripts/install-skills.sh /path/to/project --skills spring-boot-engineering,java-testing-quality --dry-run
+```
+
+Nothing is overwritten without `--force`. Details, what GitHub documents, and what is untested: [docs/copilot-adapter.md](docs/copilot-adapter.md).
 
 Suggested sets:
 
@@ -82,7 +100,7 @@ Spec Kit command names and file layout have changed between versions; the skill 
 
 - Re-check the "Version awareness" section of each skill when major releases ship (Spring Boot, Spring Security, Hibernate, Spring AI, JUnit, AGP, Spec Kit). The snapshot is in [docs/official-sources.md](docs/official-sources.md).
 - Claude Code guidance: keep `SKILL.md` under 500 lines and descriptions well under the 1,536-character listing cap; put detail in `references/`.
-- Re-run the structural checks described in the validation report after any edit.
+- Follow [docs/skill-template.md](docs/skill-template.md) for every skill and re-run `bash scripts/validate-skills.sh` after any edit (frontmatter, template headings, cross-references, size limits).
 - Add a framework-specific skill (rather than stretching an existing one) when a new stack is needed, for example a cross-platform mobile framework, Quarkus, or Micronaut.
 
 ## Limitations

@@ -18,7 +18,7 @@ Make correct, idiomatic changes to a Spring Boot application while respecting it
 - Boot 3.x: Java 17+, Jakarta namespace (`jakarta.*`), Spring Framework 6.x. Boot 2.x uses `javax.*` and is out of OSS support.
 - **Rule:** use the APIs of the version in the repo. Do not upgrade, switch Jackson generation or rename starters as a side effect. For upgrades use `java-maintenance-troubleshooting` and the official migration guides (https://github.com/spring-projects/spring-boot/wiki).
 
-## Required context
+## Required context and inputs
 Boot version, build tool, Java release, web stack (Spring MVC vs WebFlux), existing starters, profiles/config files, test setup, how the app is run/packaged.
 
 ## Repository inspection
@@ -61,6 +61,15 @@ Boot version, build tool, Java release, web stack (Spring MVC vs WebFlux), exist
 - **Shutdown:** `server.shutdown=graceful` plus `spring.lifecycle.timeout-per-shutdown-phase`; ensure in-flight work completes within the orchestrator's termination grace period.
 - **Packaging:** executable jar via the Boot Maven/Gradle plugin; container images with layered jars/Dockerfile or `bootBuildImage`/`spring-boot:build-image` (Cloud Native Buildpacks); run as non-root; set memory via container limits. Detail in `java-production-deployment`.
 - **DevTools** only in development scope; never in production artifacts.
+
+## Kotlin in Spring Boot projects (mixed or Kotlin modules)
+Spring Framework has first-class Kotlin support (the reference's Kotlin section covers requirements, null-safety, classes and interfaces, annotations, bean registration DSL, web, coroutines). The fetched page was only the intro, so the points below are general knowledge to **verify in https://docs.spring.io/spring-framework/reference/languages/kotlin.html**:
+- Follow the language of the surrounding module; never convert files or add Kotlin to a Java-only module without authorisation.
+- Build: Kotlin Gradle/Maven plugin with the `kotlin-spring` (all-open) plugin so Spring-annotated classes can be proxied, and `kotlin-jpa` (no-arg) for JPA entities; `kotlin-reflect`; the Jackson Kotlin module for data classes; keep `jvmTarget` aligned with the Java release.
+- Idioms: constructor injection with `val` parameters; `@ConfigurationProperties` on data classes (constructor binding); null-safety honours Spring's nullability annotations; coroutine/`Flow` controllers need the reactive stack and coroutine-reactor bridge.
+- Entities: avoid `data class` for JPA entities (generated `equals/hashCode/toString` touch lazy associations; see `hibernate-orm-engineering`); use classes with `var` properties and the no-arg plugin.
+- Java/Kotlin interop in shared modules: annotate nullability in Java APIs, use `@JvmStatic`/`@JvmOverloads`/`@Throws` on Kotlin APIs consumed from Java, avoid exposing `suspend`/`Flow` to Java callers (see the interop rules in `java-mobile-development`, which apply equally on the JVM).
+- Tests: JUnit works unchanged; MockK is common in Kotlin (check the repo); `@MockitoBean`/`@MockBean` rules above still apply when Mockito is used.
 
 ## Testing and verification
 - **Unit tests** with no Spring context for logic.

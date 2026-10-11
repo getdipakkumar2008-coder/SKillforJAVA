@@ -11,7 +11,7 @@ Improve performance and failure behaviour using measurements, targeted changes a
 ## Activation conditions
 Slow endpoints, high CPU/memory, GC pauses, thread starvation, pool exhaustion, timeouts, cascading failures, capacity planning, load-test requests, or reviewing a design for resilience. Run `java-engineering-core` discovery first.
 
-## Required context
+## Required context and inputs
 Symptom and target (SLO: p95/p99 latency, throughput, error rate, memory), when it happens (load, data size, time), environment parity (prod vs local), Java version and runtime flags, container limits, recent changes, existing metrics/traces.
 
 ## Core rule: evidence before optimisation
@@ -30,6 +30,9 @@ Premature micro-optimisation (manual loops over streams, object pooling, caching
 - **Memory:** GC logs (`-Xlog:gc*`), heap histogram (`jcmd <pid> GC.class_histogram`), heap dump + analyser for leaks; check `OutOfMemoryError` type (heap, metaspace, direct, native, "unable to create thread", container OOM-kill).
 - **Database:** slow-query log, `EXPLAIN (ANALYZE)`, statement counts (`hibernate-orm-engineering`), pool metrics (`java-database-engineering`).
 - **Load testing:** Gatling, k6, JMeter or the project's tool; realistic data volume and mix, warm-up, steady state, ramp to and beyond expected peak, separate load generator host, record percentiles (not just averages), error rates and saturation signals. JMH for isolated micro-benchmarks only, correctly configured (forks, warm-up, blackhole).
+
+## Repository inspection
+Find what already exists before adding anything: Actuator/Micrometer/OpenTelemetry setup and dashboards, existing timeouts, retry, circuit-breaker and cache configuration, pool and executor settings (`spring.datasource.hikari.*`, thread pools, HTTP clients), JVM flags in Dockerfile/manifests, existing load-test or benchmark suites (Gatling/k6/JMH), slow-query logging, and recent changes that correlate with the symptom (`git log`).
 
 ## Decision rules
 - **Where to look first:** (1) number of remote calls/queries per request (N+1, chatty APIs); (2) slow queries/missing indexes; (3) payload/result-set size and pagination; (4) serialization cost; (5) lock contention/thread pool queueing; (6) GC/memory; (7) code-level hot spots.

@@ -9,17 +9,20 @@ description: Shared foundation workflow for any Java task in an existing reposit
 Common operating procedure for every Java task. It defines how to discover a repository, pick only the relevant specialised skills, implement within the project's conventions, verify with real command output, and report truthfully. Specialised skills (Spring Boot, JPA, security, Android, ...) build on this one.
 
 ## Activation conditions
-Activate when the task involves Java source, a Java build (Maven/Gradle), a Java framework, or an Android Java project. Activate first; it then selects the others. If a Spec Kit workflow is present (`.specify/`, `specs/`, constitution), `java-spec-driven-development` governs requirements and planning, and this skill governs execution.
+Activate when the task involves Java source, a Java build (Maven/Gradle), a Java framework, or an Android project (Java or mixed Java/Kotlin). Kotlin-only repositories are out of scope except where Kotlin code interoperates with Java or runs on the JVM stack these skills cover (Spring/Android). Activate first; it then selects the others. If a Spec Kit workflow is present (`.specify/`, `specs/`, constitution), `java-spec-driven-development` governs requirements and planning, and this skill governs execution.
 
 ## Required context and inputs
 - The requested behaviour and any acceptance criteria.
-- Project instruction files (`CLAUDE.md`, `AGENTS.md`, `README`, `CONTRIBUTING`, constitution/specs if present).
+- Project instruction files (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, `README`, `CONTRIBUTING`, constitution/specs if present).
 - Permission to run builds and tests. If unavailable, say so in the report.
+
+## Repository inspection
+Performed in Phase 1 below, following [references/repository-discovery.md](references/repository-discovery.md): instructions and conventions, build system and Java/Kotlin versions, application type, frameworks and versions, tests and quality checks, architecture and security conventions. Specialised skills add their own "Repository inspection" for their area.
 
 ## Workflow
 
 ### Phase 1: Discover
-Follow [references/repository-discovery.md](references/repository-discovery.md). Output a short "repository profile" (Java version, build tool, app type, frameworks and versions, test and quality commands, conventions). Do not guess what can be read from files.
+Follow [references/repository-discovery.md](references/repository-discovery.md). Output a short "repository profile" (Java version, **language mix: Java/Kotlin and Kotlin version if present**, build tool, app type, frameworks and versions, UI toolkit for mobile, test and quality commands, conventions). Do not guess what can be read from files. In a mixed Java/Kotlin repository, write new code in the language of the surrounding module or the language the user specified, and follow the interop rules in the framework skill (`java-mobile-development`, `spring-boot-engineering`).
 
 ### Phase 2: Select skills
 Activate only what the task needs. Examples:
@@ -81,7 +84,13 @@ Use the checklist in [references/definition-of-done.md](references/definition-of
 - Evidence before optimisation: measure first.
 - Unfamiliar or version-sensitive API: check official docs (see the source list in `docs/official-sources.md` if present) rather than recalling from memory.
 
-## Security and reliability baseline
+## Implementation guidance
+Phase 4 above is the procedure; the standards behind it (correctness, Java conventions, security, reliability, testing, production readiness, dependencies) are in [references/engineering-principles.md](references/engineering-principles.md). Specialised skills provide technology-specific implementation guidance; when they and this skill differ, the more specific skill wins unless it would weaken security or data integrity.
+
+## Testing and verification
+Phase 5 above is the procedure; the checklist is [references/definition-of-done.md](references/definition-of-done.md). Run the narrowest relevant test first, then the module and wider build, then configured quality checks; add tests for new behaviour and bug fixes; report only results you observed and list anything not run. The `java-testing-quality` skill has the detail.
+
+## Security and reliability requirements
 Least privilege; validate untrusted input; no hardcoded secrets or credentials in code, tests or logs; enforce authorisation on the server; bounded timeouts and retries for remote calls; consider duplicate requests; protect data consistency. Scale effort to the risk and size of the task.
 
 ## Common anti-patterns
@@ -91,7 +100,7 @@ Least privilege; validate untrusted input; no hardcoded secrets or credentials i
 - Reporting "tests pass" without running them.
 - Mocking away the very behaviour (queries, transactions, security) the change depends on.
 - Broad speculative refactoring while fixing a bug.
-- Converting Java to Kotlin, or Maven to Gradle, without authorisation.
+- Converting Java to Kotlin (or Views to Compose), or Maven to Gradle, without authorisation; adding Kotlin to a Java-only module as a side effect.
 
 ## Definition of done
 Every applicable item in [references/definition-of-done.md](references/definition-of-done.md) is true and evidenced: acceptance criteria met, tests added and run, build and quality checks run with observed results, no weakened tests or security controls, scope respected, and the report lists commands, results, risks and anything not verified.

@@ -11,7 +11,7 @@ Get the data layer right regardless of the access technology (JPA, JDBC, jOOQ, M
 ## Activation conditions
 New/changed tables, columns, indexes or constraints; migration scripts; slow queries or timeouts; deadlocks, lock waits, lost updates; connection pool exhaustion; test database strategy; data-access permissions. For ORM mapping and fetching use `spring-data-jpa-engineering` and `hibernate-orm-engineering` alongside. Run `java-engineering-core` discovery first.
 
-## Required context
+## Required context and inputs
 DB engine and **version** (PostgreSQL, MySQL/MariaDB, SQL Server, Oracle, ...), hosting (managed/self), data volume and growth, read/write ratio, migration tool and conventions, deployment style (rolling, blue/green; multiple app versions at once?), and who else uses the schema.
 
 ## Portable vs engine-specific
@@ -61,7 +61,8 @@ Mark engine-specific changes clearly, check that engine's official docs for the 
 - Reset state per test (transaction rollback, truncate, or fresh container per suite); no dependency on order.
 - Seed minimal, deterministic data; use larger generated datasets for plan/performance checks outside the unit-test suite.
 
-## Security requirements
+## Security and reliability requirements
+Reliability: short transactions, retry whole transactions on deadlock/serialization failure with bounds, migrations safe under concurrent starts and rolling deploys, bounded pools and batch sizes, tested backup/restore assumptions. Security:
 - Parameterised queries only; allow-list dynamic identifiers (sort columns, table names).
 - Least-privilege DB accounts: separate migration and runtime roles; no superuser/DBA in app config; per-service schemas/users.
 - Credentials from secret stores, not source/config files; TLS to the database where supported; rotate credentials.

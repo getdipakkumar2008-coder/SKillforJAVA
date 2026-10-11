@@ -19,16 +19,17 @@ Turn specification artifacts into verified Java code without re-deciding require
 - I could **not** confirm from the fetched pages: exact artifact file names/paths (commonly `specs/<feature>/spec.md`, `plan.md`, `tasks.md`, and a constitution under `.specify/`), clarify/analyze/checklist command names, or what the Claude integration generates. Command names and layout have changed between Spec Kit versions. **Therefore: discover the layout and commands from the repository itself** (below) and from the installed version's docs (`specify --help`, README, the generated command files), never from memory.
 - If the project uses a different spec workflow (OpenSpec, Kiro-style specs, plain ADR/PRD markdown), apply the same procedure to its artifacts.
 
-## Required context
+## Required context and inputs
 Constitution/principles, the feature spec (user stories, functional requirements, acceptance scenarios, success criteria, edge cases), plan (architecture, data model, contracts, tech choices), tasks (ordered, with dependencies/parallel markers and status), plus project instruction files.
 
-## Discover the spec artifacts
+## Repository inspection
 1. List `.specify/` (templates, memory/constitution, scripts, bugs, assessments) and `specs/` (feature folders). Identify the **current feature** from the branch name, the user's message, or the most recently changed feature folder; if ambiguous, ask.
 2. Read in order: constitution -> spec -> plan -> data model/contracts/research notes -> tasks.
 3. Note: unresolved `[NEEDS CLARIFICATION]`-style markers, checklists and their state, task ids/status markers (`[ ]`/`[x]`), and any analysis/converge reports.
-4. Read repo instruction files (`CLAUDE.md`, `AGENTS.md`) and the `java-engineering-core` repository profile.
+4. Read repo instruction files (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`) and the `java-engineering-core` repository profile.
 
-## Workflow (the 11 steps)
+## Workflow
+The 11 steps:
 1. **Read** instructions, constitution, spec, plan, tasks and acceptance criteria (above).
 2. **Respect decisions:** the constitution and plan are binding (architecture, libraries, versions, conventions). Do not substitute technologies or restructure because you prefer something else.
 3. **Map tasks to skills:** for each task, activate only the relevant Java skills (see mapping table). Record the mapping briefly.
@@ -63,6 +64,13 @@ Always include `java-engineering-core`. If a listed skill is not installed, proc
 - Task status reflects verified reality; incomplete verification means the task is not done.
 - When the user asks to bypass the spec workflow, comply with their instruction but state the traceability trade-off in one line.
 
+## Implementation guidance
+- Implement one task (or a tight group) at a time in dependency order; keep each step buildable and reviewable.
+- Follow the plan's architecture, libraries and contracts; use the Java skills for *how* (conventions, frameworks, tests) without changing *what* the spec requires.
+- Name tests and commits so they trace to requirement or task ids; keep a running list of deviations, assumptions and open questions.
+- Do not edit the constitution, spec or plan to match the code; propose changes and let the owner accept them.
+- Update task checkboxes and docs only after verification.
+
 ## Security and reliability requirements
 Specs often omit non-functional needs. Check each task against: authorization, input validation, data integrity/transactions, secrets, error handling, idempotency, observability, performance limits. If the spec is silent on something consequential, ask or record an explicit assumption; do not skip it. Apply the constitution's security/quality gates literally.
 
@@ -83,7 +91,7 @@ Maintain a short traceability table in your report (and in the project's artifac
 Report the exact commands run and real outcomes; list criteria not verified and why (no container runtime, external dependency, manual UAT needed). If the workflow has an analysis/converge step, state whether it was run and its result.
 
 ## Recommended workflow with Spec Kit (summary)
-1. Once per project: install `specify`, `specify init` for your agent, install the Java skill base into `.claude/skills/`, write a **constitution** that references Java standards (Java/Boot versions, test and security gates, "use java-engineering-core").
+1. Once per project: install `specify`, `specify init` for your agent, install the Java skill base (`scripts/install-skills.sh`; `.claude/skills/` for Claude Code and Copilot, or `.github/skills/` for Copilot only), write a **constitution** that references Java standards (Java/Boot versions, test and security gates, "use java-engineering-core").
 2. Per feature: specify -> (clarify) -> plan (stack, data model, contracts) -> tasks -> **implement using this skill** -> converge/analyze until clean.
 3. Keep specs technology-neutral (what/why); put stack decisions in the plan; keep Java-specific *how* in these skills, not in every spec.
 4. Review small diffs per task; verify; update task status; merge.

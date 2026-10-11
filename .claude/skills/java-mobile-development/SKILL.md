@@ -1,15 +1,15 @@
 ---
 name: java-mobile-development
-description: Build, change, test and prepare native Android applications written in Java - project and Gradle configuration, Activities/Fragments and lifecycle, UI and event handling, navigation and state (ViewModel/LiveData), main-thread and background work, REST networking, local persistence (Room), offline sync, secure token handling, permissions, accessibility, configuration changes and process death, performance, unit and instrumentation tests, debugging and release preparation. Use for Android projects where Java is the language. Not for Spring/backend code or cross-platform frameworks.
+description: Build, change, test and prepare native Android applications in Java or mixed Java/Kotlin - Gradle configuration, Activities/Fragments and lifecycle, Java/Kotlin interoperability, Jetpack libraries (Lifecycle/ViewModel, Room, WorkManager, Navigation, Hilt) and Jetpack Compose coexisting with Views, main-thread and background work, REST networking, offline sync, secure token handling, permissions, accessibility, configuration changes and process death, unit and instrumentation tests, and release preparation. Use for Android projects where Java is the primary or required language. Not for Spring/backend code or cross-platform frameworks.
 ---
 
 # Java Mobile Development (Android)
 
 ## Purpose
-Make correct, secure, lifecycle-safe changes to a native Android app in Java, following modern Android architecture guidance while respecting the project's language and existing structure.
+Make correct, secure, lifecycle-safe changes to a native Android app in Java (or a mixed Java/Kotlin codebase), following modern Android architecture guidance and Jetpack while respecting the project's language, UI toolkit and existing structure.
 
 ## Scope boundaries
-- **Native Android in Java.** Modern Android guidance is Kotlin- and Compose-first; many projects are mixed. Do **not** convert Java to Kotlin, or Views to Compose, without explicit authorisation. Interoperate with Kotlin/Compose code if the repo already contains it.
+- **Native Android: Java-first, Kotlin- and Compose-aware.** Modern Android guidance is Kotlin- and Compose-first and many projects are mixed, so determine the real language mix and UI toolkit in discovery. In a Java file write Java; in a Kotlin file write idiomatic Kotlin; write new code in the language the module/feature already uses or the user specified. Do **not** convert Java to Kotlin, or Views to Compose, without explicit authorisation. Interoperate with existing Kotlin/Compose code using the rules in "Java/Kotlin interoperability" and "Jetpack and Compose" below.
 - **Not** Spring/server patterns: no Spring Boot layering, `@Service`/`@Transactional` thinking, or server-side persistence idioms in Android UI code.
 - **Cross-platform requests** (Flutter, React Native, KMP, .NET MAUI, etc.): identify the framework first and use or create a framework-specific skill; this skill does not apply.
 - The Android client is **untrusted**: it never holds server credentials or enforces authorization. The backend does (`spring-security-engineering`, `java-web-development`).
@@ -23,16 +23,17 @@ Make correct, secure, lifecycle-safe changes to a native Android app in Java, fo
 - Java API levels per the docs: Android 13 (API 33) -> Java 11 core libraries; Android 14 (API 34) -> Java 17.
 - Do not change AGP, Gradle, `compileSdk` or `targetSdk` as a side effect; `targetSdk` bumps carry platform behaviour changes and store-policy deadlines (see developer.android.com and Play Console requirements).
 
-## Required context
+## Required context and inputs
 `minSdk`/`targetSdk`/`compileSdk`; Java level; UI toolkit; architecture pattern in use (MVVM/MVP/none); navigation approach; DI; networking (Retrofit/OkHttp, `HttpURLConnection`, Volley); persistence (Room, SQLite, DataStore, SharedPreferences); auth flow with the backend; backend API contract; build variants and signing setup.
 
 ## Repository inspection
-1. `settings.gradle`, `build.gradle(.kts)`, version catalog, product flavors/build types, `proguard-rules.pro`, signing config handling (secrets out of VCS).
-2. `AndroidManifest.xml`: components, `exported` flags, permissions, intent filters, network security config, backup rules.
-3. Package layout: UI (activities/fragments/adapters), ViewModels, repositories, data sources, models, DI modules.
-4. Existing state/threading approach (Executors, RxJava, coroutines via Java interop, `LiveData`).
-5. Resources: strings, layouts, themes, accessibility attributes, localisation.
-6. Tests: `src/test` (JVM), `src/androidTest` (instrumentation), CI commands.
+1. **Language and toolkit mix:** count `.java` vs `.kt` files per module; find the Kotlin Android plugin and Kotlin version, `jvmTarget`/`compilerOptions`, `kapt`/`ksp` vs `annotationProcessor`, `buildFeatures { compose = true }` with the Compose compiler plugin and BOM, `viewBinding`/`dataBinding`, and XML layouts vs `@Composable` functions.
+2. `settings.gradle`, `build.gradle(.kts)`, version catalog, product flavors/build types, `proguard-rules.pro`, signing config handling (secrets out of VCS).
+3. `AndroidManifest.xml`: components, `exported` flags, permissions, intent filters, network security config, backup rules.
+4. Package layout: UI (activities/fragments/adapters/composables), ViewModels, repositories, data sources, models, DI modules.
+5. Existing state/threading approach (Executors, RxJava, coroutines/Flow wrapped for Java, `LiveData`).
+6. Resources: strings, layouts, themes, accessibility attributes, localisation.
+7. Tests: `src/test` (JVM), `src/androidTest` (instrumentation, Compose rules), CI commands.
 
 ## Decision rules
 - **Architecture:** follow the repo's pattern; for new code prefer `Activity/Fragment` (UI only) -> `ViewModel` (state holder) -> repository -> data sources (remote/local). State flows down, events flow up; the UI observes immutable state. Introduce a domain/use-case layer only for reused or complex logic.
@@ -48,8 +49,35 @@ Make correct, secure, lifecycle-safe changes to a native Android app in Java, fo
 - **UI:** support configuration changes without data loss; use resources for strings/dimensions/colours (no hardcoded text); responsive layouts (ConstraintLayout/size-class-aware resources), dark theme, RTL, font scaling.
 - **Accessibility:** `contentDescription` for images/icons, labels for inputs, minimum touch targets (48dp), sufficient contrast, logical focus order, no information by colour alone; test with TalkBack.
 
+## Java/Kotlin interoperability (per the Android Kotlin-interop guide)
+Apply when the repo has both languages or Java code touches Kotlin libraries/modules.
+
+**Writing Java that Kotlin will call**
+- Annotate nullability on every non-primitive parameter, return and field (`androidx.annotation.Nullable`/`NonNull`); unannotated types become ambiguous "platform types" in Kotlin. Enable the `Interoperability` lint checks and run `./gradlew lint`.
+- Put functional-interface (SAM) parameters last so Kotlin callers can use trailing lambdas; use bean-style `getX()/setX()/isX()` naming so members read as Kotlin properties; avoid Kotlin hard keywords and `Any`-extension names (`let`, `also`, `apply`) as member names.
+
+**Calling Kotlin from Java**
+- Top-level Kotlin functions live in a `FileNameKt` class unless the file has `@file:JvmName`; `companion object` members need `Companion.` unless annotated `@JvmStatic`; Kotlin properties surface as getters/setters unless `@JvmField` or `const val`.
+- Default arguments are invisible to Java without `@JvmOverloads`; checked exceptions are visible only if declared with `@Throws`.
+- Kotlin function types returning `Unit` force `return Unit.INSTANCE;` in Java lambdas; prefer `fun interface` for callbacks that Java implements.
+- `suspend` functions take an extra `Continuation` parameter and `Flow` is a Kotlin API: neither is practical to call directly from Java. Ask the Kotlin side for a Java-friendly facade (callback, `ListenableFuture`/`CompletableFuture`, `LiveData`, or an `Executor`-based wrapper) instead of hand-writing continuations. (The interop guide page did not cover coroutines; verify in the Kotlin coroutines docs.)
+- Kotlin read-only collection types are not enforced in Java: copy defensively. `Nothing` in generics appears as a raw type in Java.
+
+**Rules for mixed modules**
+- Keep the Java-visible surface of Kotlin modules small and deliberate.
+- Use matching `jvmTarget`/Java levels for both compilers; configure annotation processors per language (Hilt/Dagger/Room need `kapt`/`ksp` for Kotlin sources and `annotationProcessor` for Java sources); mixed Java/Kotlin sources can live in one module, but circular dependencies between modules are not allowed.
+- Do not "fix" interop friction by converting files wholesale; add annotations or a facade.
+
+## Jetpack and Compose
+- **Jetpack (AndroidX) libraries are usable from Java:** Lifecycle (`ViewModel`, `LiveData`, lifecycle observers), `SavedStateHandle`, Room (return `LiveData`/`ListenableFuture`/RxJava types instead of `Flow`/`suspend`), WorkManager (`Worker`/`ListenableWorker`), Navigation (Safe Args can generate Java), Hilt/Dagger (`annotationProcessor`), DataStore (use the RxJava or Guava-based artefacts), Paging (RxJava/Guava variants). Prefer the Java-friendly artefact variants (`-guava`, `-rxjava3`, `-java`) over coroutine-only APIs; verify artefact names for the repo's versions.
+- **Compose is Kotlin-first.** `@Composable` functions are not authored or called idiomatically from Java. In a Java-first repo that adds Compose: write composables in Kotlin files (ideally a separate `ui` package or module) and host them from Java via `ComposeView` in an XML layout or Fragment, passing state through a `ViewModel`. Never introduce Kotlin or Compose into a Java-only module without authorisation: it adds the Kotlin plugin, Compose compiler plugin and BOM to the build.
+- **Views and Compose coexist** (official interop APIs: `ComposeView` for Compose inside Views; `AndroidView`/`AndroidViewBinding` for Views inside Compose). In Fragments set an appropriate `ViewCompositionStrategy` tied to the Fragment's view lifecycle. `LiveData` is observed in Compose with `observeAsState()`, `Flow` with `collectAsStateWithLifecycle()`. (The interop overview page named the APIs; composition-strategy and state details come from general knowledge - verify in the "Using Compose in Views" and "Using Views in Compose" pages.)
+- **State:** one `ViewModel`/state holder as the source of UI state for either toolkit; unidirectional data flow applies equally to Views and Compose.
+- **Versions:** Kotlin, the Compose compiler plugin, the Compose BOM and AGP have compatibility constraints - check the official compatibility tables and do not bump one independently.
+- **Testing:** Compose UI tests use `createComposeRule`/`createAndroidComposeRule` (Kotlin test source set); Espresso for View screens; mixed screens may need both.
+
 ## Workflow
-1. Profile the app (versions, architecture, toolkit) and the requested feature's contract with the backend.
+1. Profile the app (versions, language mix, architecture, toolkit) and the requested feature's contract with the backend.
 2. Plan state and data flow: UI states, events, data sources, offline behaviour, permissions, lifecycle/process-death handling.
 3. Implement from the data layer up (model, remote/local source, repository), then ViewModel, then UI; keep logic out of Activities/Fragments.
 4. Add accessibility, localisation, error/empty/loading states.
@@ -68,7 +96,8 @@ Make correct, secure, lifecycle-safe changes to a native Android app in Java, fo
 - Logging: a wrapper or Timber-style tree; no PII/tokens; reduced in release.
 - Strings and plurals via resources; dates/times via `java.time` (with desugaring if `minSdk` requires).
 
-## Security and privacy requirements (per developer.android.com security guidance)
+## Security and reliability requirements
+Security items follow developer.android.com's security checklist; reliability items are the lifecycle, threading, offline and background-work rules in "Decision rules".
 - **No server secrets in the app.** Anything in the APK can be extracted; API keys are not secrets - restrict them server-side by package/signature; keep keys out of source control (e.g. via a secrets Gradle plugin).
 - **Tokens:** authenticate with the backend via OAuth 2.0 / OIDC (authorization code + PKCE through the system browser/Custom Tabs, or Credential Manager for passkeys/federated sign-in); store only short-lived tokens, encrypted with Android Keystore-backed keys (e.g. Tink or `EncryptedFile`-style wrappers - verify the maintained library); do not store passwords; clear on logout; support refresh/rotation.
 - **Authorization is server-side.** UI hiding is cosmetic; never rely on client checks or client-held roles; handle 401/403 properly (re-auth vs access denied).
@@ -89,14 +118,14 @@ Make correct, secure, lifecycle-safe changes to a native Android app in Java, fo
 - Storing tokens or PII in plain SharedPreferences/SQLite/logs; enabling cleartext traffic or trusting all certificates.
 - Exported components with intent filters by accident; implicit intents for internal services; unvalidated deep links.
 - Requesting broad permissions up front; polling in the background; wake locks without need.
-- Converting to Kotlin/Compose or bumping SDK/AGP versions as a side effect; mixing `javax`-server idioms into the app.
+- Converting to Kotlin/Compose, or bumping Kotlin/Compose BOM/SDK/AGP versions, as a side effect; calling `suspend`/`Flow` APIs from Java by hand; trying to author `@Composable` functions in Java; unannotated platform types at Java/Kotlin boundaries; mixing `javax`-server idioms into the app.
 - Catching and ignoring errors; no loading/error/offline states; hardcoded strings; ignoring accessibility and font scaling.
 - Disabling R8/lint to get a green build; shipping untested release builds.
 
 ## Testing and verification
 - **JVM unit tests** (`./gradlew testDebugUnitTest`): ViewModels (with `InstantTaskExecutorRule`/executors replaced), repositories, mappers, validators, sync logic; Mockito per repo convention; Robolectric only when framework classes are needed and it is already used.
 - **Instrumentation tests** (`./gradlew connectedDebugAndroidTest`, needs an emulator/device): Espresso/AndroidX Test for UI flows, Room DAOs and migrations (`MigrationTestHelper`), permissions, lifecycle/rotation, process-death restoration; Compose test APIs if Compose exists.
-- **Static checks:** `./gradlew lint` (or `lintDebug`), configured formatters/static analysis; accessibility checks (Espresso accessibility checks, manual TalkBack).
+- **Static checks:** `./gradlew lint` (or `lintDebug`; enable the `Interoperability` checks in mixed code), configured formatters/static analysis; accessibility checks (Espresso accessibility checks, manual TalkBack).
 - **Network behaviour:** MockWebServer for API contract, error and timeout cases; verify behaviour offline and on slow networks.
 - **Release check:** `./gradlew assembleRelease` (or `bundleRelease`) with R8; smoke-test the release build; verify the manifest merge and permissions (`aapt`/Studio APK analyzer); check size and startup where relevant.
 - Report exactly which commands ran, on which API level/emulator, and which tests could not run (no emulator, no signing keys).
@@ -114,6 +143,7 @@ Feature works across lifecycle events (rotation, background/foreground, process 
 - https://developer.android.com/ · architecture: https://developer.android.com/topic/architecture · offline-first guidance linked from the architecture pages
 - Security checklist: https://developer.android.com/privacy-and-security/security-tips (the general landing page `.../privacy-and-security` returned 404 when checked; use the sub-pages)
 - Java/JDK support for builds: https://developer.android.com/build/jdks
+- Kotlin-Java interop: https://developer.android.com/kotlin/interop · Compose/Views interop: https://developer.android.com/develop/ui/compose/migrate/interoperability-apis · Jetpack: https://developer.android.com/jetpack
 - Testing: https://developer.android.com/training/testing · Accessibility: https://developer.android.com/guide/topics/ui/accessibility
 - Background work: https://developer.android.com/develop/background-work
 - Release: https://developer.android.com/studio/publish

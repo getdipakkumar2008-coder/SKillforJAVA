@@ -11,7 +11,7 @@ Write correct, readable, version-appropriate Java. Language features are chosen 
 ## Activation conditions
 Java code is being written, changed or reviewed: libraries, domain logic, utilities, concurrency, I/O, API design, JVM behaviour. Framework-specific concerns go to the matching skill (Spring Boot, JPA, Android, ...). Run `java-engineering-core` discovery first.
 
-## Required context
+## Required context and inputs
 Java release level (from build file/toolchain), whether the code is a public library API (compatibility rules apply), threading context, and existing style in neighbouring code.
 
 ## Feature gating by release
@@ -28,6 +28,9 @@ Check the project's `release`/toolchain before using a feature. Use the table as
 | Structured concurrency, scoped values, string templates, unnamed variables | check current status; several were preview in 21-24 - do not use preview features unless the project already enables them |
 
 Never enable `--enable-preview` or raise the release level as a side effect of a task.
+
+## Repository inspection
+Confirm from the build files: the Java release (`release`/toolchain), preview flags, Kotlin presence, language-level lint or static-analysis rules (Error Prone, SpotBugs, Checkstyle), whether the module is a published library (public API compatibility, `module-info`), logging and testing libraries, and the style of neighbouring code (immutability, exceptions, null handling, naming). Do not use a feature above the release level.
 
 ## Decision rules
 - **Value carrier** with no behaviour beyond data: record (if release >= 16). Needs identity, mutation or inheritance: class.
@@ -61,9 +64,10 @@ Never enable `--enable-preview` or raise the release level as a side effect of a
 - **Logging:** SLF4J parameterised logging if the project uses it; never `System.out` in library code.
 - **Serialization:** avoid Java native serialization, especially of untrusted data; use JSON/Protobuf with explicit schemas.
 - **JVM/runtime:** do not tune GC or heap flags without measurements (GC logs, JFR, heap dumps). Know common leaks: static collections, unclosed resources, `ThreadLocal` on pooled threads, listener registrations. Default collector and container-aware heap sizing are usually adequate.
+- **Kotlin consumers of a Java API:** annotate nullability on every non-primitive parameter, return and field (JSR 305 / `androidx.annotation` / JSpecify per the repo) - unannotated types become Kotlin "platform types"; put functional-interface parameters last; use bean-style accessor names; avoid Kotlin keywords as member names. In a mixed repo, do not convert Java to Kotlin as an interop fix.
 - **Public library API:** treat public signatures as a contract. Prefer adding over changing; deprecate with `@Deprecated(since=..., forRemoval=...)` and Javadoc replacement; keep binary compatibility; use `module-info` or package conventions to hide internals when the project uses them.
 
-## Security and reliability
+## Security and reliability requirements
 - Validate input size/shape; never build SQL, shell commands or paths by concatenating untrusted strings (use parameters, `ProcessBuilder` arg lists, path normalisation + base-directory check).
 - Use `SecureRandom` for security tokens; standard crypto APIs, never custom crypto; no hardcoded keys.
 - No unbounded queues/pools/caches; apply timeouts to I/O and futures.
