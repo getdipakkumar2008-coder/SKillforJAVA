@@ -6,6 +6,18 @@ The skills are actionable procedures, not tutorials. A task activates only the s
 
 > Status: all 18 skills and the supporting docs are written. They were validated by **structural checks and manual review only** - they have not yet been exercised on real projects. See [docs/validation-report.md](docs/validation-report.md).
 
+## Quick start: make it the default
+
+This repository is a Claude Code **plugin** (`java-skills`) and its **marketplace** (`java-skill-base`). Once enabled, a session hook detects Java, Spring Boot and Android projects and tells Claude to start every Java task with `java-skills:java-engineering-core`, which then loads the specialised skills. Nobody has to ask for the skills.
+
+| You are | Do this once | Result |
+|---|---|---|
+| An individual | `node scripts/configure.js user --run` | on in every project on your machine |
+| A team | `node scripts/configure.js project <your-repo>` and commit `.claude/settings.json` | contributors are prompted to install it when they open the repo |
+| An organisation | deploy `templates/managed-settings.json` (or `managed-settings.strict.json`) as managed settings | force-enabled on every machine; users cannot turn it off |
+
+Details, limits and what is not yet verified: [docs/adoption.md](docs/adoption.md). Prefer plain files? `bash scripts/install-skills.sh --user` (or `<repo>`) is the no-plugin fallback.
+
 ## Contents
 
 | Path | Purpose |
@@ -16,6 +28,9 @@ The skills are actionable procedures, not tutorials. A task activates only the s
 | [docs/technology-map.md](docs/technology-map.md) | How Java, Spring, JPA, Hibernate, web and Android relate |
 | [docs/official-sources.md](docs/official-sources.md) | Source register and version snapshot |
 | [docs/validation-report.md](docs/validation-report.md) | What was checked, what was not, known gaps |
+| [docs/adoption.md](docs/adoption.md) | Making the plugin the default for individuals, teams and organisations |
+| `.claude-plugin/`, `hooks/`, `templates/` | Plugin manifest, marketplace, SessionStart hook, settings templates |
+| `scripts/configure.js` | Enable the plugin for a user, a project, or generate managed settings |
 | [docs/skill-template.md](docs/skill-template.md) | The mandatory SKILL.md template and writing rules |
 | [docs/copilot-adapter.md](docs/copilot-adapter.md) | GitHub Copilot compatibility, instruction files, installer |
 | `adapters/copilot/` | Copilot repository-wide and path-specific instruction templates |

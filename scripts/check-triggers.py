@@ -234,7 +234,7 @@ FIXTURES = {"spring": ROOT / "tests" / "triggers" / "fixture", "android": ROOT /
 EXTRAS_DIR = ROOT / "tests" / "triggers" / "extras"
 
 
-def prepare_workdir(base, fixture="spring", bootstrap=False, dirty=False):
+def prepare_workdir(base, fixture="spring", bootstrap=False, dirty=False, plugin=False):
     """Create a scratch project: fixture + skills (+ CLAUDE.md) as a git repository.
     dirty=True adds an uncommitted file so review prompts have something to review."""
     if base:
@@ -245,9 +245,10 @@ def prepare_workdir(base, fixture="spring", bootstrap=False, dirty=False):
         shutil.copytree(src, work, dirs_exist_ok=True)
     else:
         (work / "README.md").write_text("Scratch project for skill trigger tests.\n", encoding="utf-8")
-    shutil.copytree(SKILLS_DIR, work / ".claude" / "skills")
-    if bootstrap:
-        shutil.copyfile(BOOTSTRAP, work / "CLAUDE.md")
+    if not plugin:  # plugin mode: skills and bootstrap come from the plugin + SessionStart hook
+        shutil.copytree(SKILLS_DIR, work / ".claude" / "skills")
+        if bootstrap:
+            shutil.copyfile(BOOTSTRAP, work / "CLAUDE.md")
     git = shutil.which("git")
     if git:
         env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@t")
@@ -296,6 +297,8 @@ def run_one(case, work, args, claude_bin):
            "--disallowedTools", *[t for t in ALL_TOOLS if t not in allowed]]
     if args.budget and args.budget > 0:
         cmd += ["--max-budget-usd", str(args.budget)]
+    if args.plugin:
+        cmd += ["--plugin-dir", str(ROOT)]
     if args.model:
         cmd += ["--model", args.model]
     t0 = time.time()
@@ -339,12 +342,12 @@ def cmd_claude(args):
         print(f"batch {args.batch} of {nbatches} (size {size}): " + ", ".join(c["id"] for c in cases))
     cap_text = "no cap" if not args.budget else "capped at $%.2f per case" % args.budget
     print(f"{len(cases)} case(s); {cap_text}; model: {args.model or 'default'}; "
-          f"tools: Skill+{args.tools or 'none'}; fixture: {'no' if args.no_fixture else 'yes'}; bootstrap CLAUDE.md: {'yes' if args.bootstrap else 'no'}")
+          f"tools: Skill+{args.tools or 'none'}; fixture: {'no' if args.no_fixture else 'yes'}; bootstrap CLAUDE.md: {'yes' if args.bootstrap else 'no'}; plugin mode: {'yes' if args.plugin else 'no'}")
     if not args.yes:
         print("This spends API credits. Re-run with --yes to proceed.")
         return 0
     keys = sorted({("none" if args.no_fixture else c.get("fixture", "spring"), bool(c.get("dirty"))) for c in cases})
-    works = {k: prepare_workdir(args.workdir, fixture=k[0], bootstrap=args.bootstrap, dirty=k[1]) for k in keys}
+    works = {k: prepare_workdir(args.workdir, fixture=k[0], bootstrap=args.bootstrap, dirty=k[1], plugin=args.plugin) for k in keys}
     for k, w in works.items():
         print(f"scratch project {k}: {w}")
     try:
@@ -365,10 +368,10 @@ def cmd_claude(args):
             errors += 1
             print(f"ERROR {r['id']:9s} {r['error']}")
             continue
-        ok, reasons = evaluate(c, set(mine), skills, gate=args.bootstrap)
+        ok, reasons = evaluate(c, set(mine), skills, gate=args.bootstrap or args.plugin)
         extra = sorted(set(mine) - expected_set(c) - {CORE})
         note = ""
-        if args.bootstrap and c.get("gate_only"):
+        if (args.bootstrap or args.plugin) and c.get("gate_only"):
             spec = sorted(expected_set(c) - {CORE})
             note = "  [gate_only: specialised " + ("loaded" if set(spec) & set(mine) else "not loaded (allowed): " + ",".join(spec)) + "]"
         fails += 0 if ok else 1
@@ -413,6 +416,7 @@ def main():
     p.add_argument("--tools", default="Read,Glob,Grep", help="comma-separated extra tools besides Skill (default: read-only Read,Glob,Grep; use '' for Skill only)")
     p.add_argument("--no-fixture", action="store_true", help="use an empty scratch project instead of tests/triggers/fixture")
     p.add_argument("--bootstrap", action="store_true", help="include adapters/claude/CLAUDE.md in the scratch project")
+    p.add_argument("--plugin", action="store_true", help="test the real plugin path: load this repository as a plugin (--plugin-dir) so the SessionStart hook supplies the bootstrap; no skills or CLAUDE.md are copied into the scratch project")
     p.add_argument("--transcripts", help="directory to save the raw stream-json of every case (for diagnosis)")
     p.add_argument("--keep", action="store_true"); p.add_argument("--out"); p.add_argument("--yes", action="store_true")
     p.set_defaults(fn=cmd_claude)

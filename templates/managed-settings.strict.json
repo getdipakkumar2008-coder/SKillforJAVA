@@ -1,0 +1,25 @@
+{
+  "strictKnownMarketplaces": [
+    { "source": "github", "repo": "getdipakkumar2008-coder/SKillforJAVA" },
+    { "source": "github", "repo": "anthropics/claude-plugins-official" },
+    { "source": "skills-dir" }
+  ],
+  "extraKnownMarketplaces": {
+    "java-skill-base": {
+      "source": {
+        "source": "github",
+        "repo": "getdipakkumar2008-coder/SKillforJAVA"
+      },
+      "autoUpdate": true
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "java-skills@java-skill-base": true
+  }
+}

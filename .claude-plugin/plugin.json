@@ -1,0 +1,13 @@
+{
+  "name": "java-skills",
+  "displayName": "Java Skill Base",
+  "version": "1.0.0",
+  "description": "Base skill framework for Java, Spring Boot, JPA/Hibernate, Spring Security and Android (Java/Kotlin) engineering: 18 repository-aware skills plus a session hook that applies them automatically in Java projects.",
+  "author": {
+    "name": "Dipak"
+  },
+  "repository": "https://github.com/getdipakkumar2008-coder/SKillforJAVA",
+  "license": "MIT",
+  "keywords": ["java", "spring-boot", "jpa", "hibernate", "spring-security", "android", "skills"],
+  "skills": ["./.claude/skills/"]
+}
