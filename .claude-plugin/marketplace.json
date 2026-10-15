@@ -1,0 +1,14 @@
+{
+  "name": "java-skill-base",
+  "description": "Java and Spring Boot engineering skill base",
+  "owner": {
+    "name": "Dipak"
+  },
+  "plugins": [
+    {
+      "name": "java-skills",
+      "source": "./",
+      "description": "Java, Spring Boot, JPA/Hibernate, Spring Security and Android skills with an automatic session hook for Java projects"
+    }
+  ]
+}

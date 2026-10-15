@@ -84,6 +84,54 @@ if [ -f "$cm" ]; then
   done
 fi
 
+
+# Plugin packaging: manifests, hook and templates must be valid and consistent
+repo_root="$(dirname "$root")/.."
+if command -v node >/dev/null 2>&1; then
+  node - "$repo_root" <<'NODE' || fail=$((fail + 1))
+const fs = require('fs'), path = require('path');
+const root = path.resolve(process.argv[2]);
+let bad = 0;
+const err = (m) => { console.log('FAIL: plugin: ' + m); bad++; };
+function load(rel) {
+  try { return JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8')); }
+  catch (e) { err(rel + ' is missing or not valid JSON (' + e.message + ')'); return null; }
+}
+const plugin = load('.claude-plugin/plugin.json');
+const market = load('.claude-plugin/marketplace.json');
+const hooks = load('hooks/hooks.json');
+if (plugin) {
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(plugin.name || '')) err('plugin.json name must be kebab-case');
+  for (const s of [].concat(plugin.skills || [])) {
+    if (!s.startsWith('./')) err('plugin.json skills path must start with ./ : ' + s);
+    else if (!fs.existsSync(path.join(root, s))) err('plugin.json skills path not found: ' + s);
+  }
+}
+if (plugin && market) {
+  const entry = (market.plugins || []).find((p) => p.name === plugin.name);
+  if (!entry) err('marketplace.json has no plugin entry named "' + plugin.name + '"');
+}
+if (hooks) {
+  const cmds = JSON.stringify(hooks);
+  const m = cmds.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+\.js)/);
+  if (!m) err('hooks/hooks.json does not reference a hook script');
+  else if (!fs.existsSync(path.join(root, m[1]))) err('hook script not found: ' + m[1]);
+}
+for (const f of fs.readdirSync(path.join(root, 'templates')).filter((x) => x.endsWith('.json'))) load('templates/' + f);
+console.log(bad ? 'plugin packaging: FAILED' : 'plugin packaging: OK (plugin.json, marketplace.json, hooks.json, templates)');
+process.exit(bad ? 1 : 0);
+NODE
+  node --check "$repo_root/hooks/java-session-start.js" 2>/dev/null || err "hooks/java-session-start.js has a syntax error"
+  node --check "$repo_root/scripts/configure.js" 2>/dev/null || err "scripts/configure.js has a syntax error"
+else
+  echo "note: node not found - plugin packaging checks skipped"
+fi
+if command -v claude >/dev/null 2>&1; then
+  vout="$(cd "$repo_root" && claude plugin validate . 2>&1)" || true
+  echo "$vout" | grep -q "Validation failed" && err "claude plugin validate reported failures"
+  echo "$vout" | grep -q "Validation passed" && echo "claude plugin validate: passed" || true
+fi
+
 # every skill name must be unique (directories are unique by construction)
 echo "skills checked: $(echo "$names" | wc -w)"
 if [ "$fail" -eq 0 ]; then echo "OK: all structural checks passed"; else echo "FAILED: $fail problem(s)"; exit 1; fi

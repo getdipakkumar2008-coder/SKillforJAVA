@@ -88,6 +88,9 @@ Authoritative sources used to build the skills, their intended use, and the vers
 | GitHub Copilot agent skills | https://docs.github.com/en/copilot/concepts/agents/about-agent-skills ; https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills | Copilot skill locations, surfaces, frontmatter | fetched 2026-10-11: reads `.github/skills`, `.claude/skills`, `.agents/skills`; frontmatter fields not fully documented on the concept page |
 | GitHub Copilot custom instructions | https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions | `copilot-instructions.md`, `*.instructions.md` with `applyTo`, `AGENTS.md` | fetched 2026-10-11 |
 | Agent Skills specification | https://agentskills.io/specification | Portable SKILL.md rules (name <= 64, description <= 1024) | fetched 2026-10-11 |
+| Claude Code plugins | https://code.claude.com/docs/en/plugins ; /plugins/create ; /plugins/manifest-reference ; /plugins/create-marketplace | Plugin and marketplace formats, `skills` key, hooks | fetched 2026-10-15 |
+| Claude Code hooks | https://code.claude.com/docs/en/hooks | SessionStart `additionalContext`, plugin `hooks/hooks.json`, 10,000-character limit | fetched 2026-10-15 (page partly read) |
+| Manage plugins for your organization | https://code.claude.com/docs/en/plugins/org ; /managed-settings | `extraKnownMarketplaces`, `enabledPlugins`, `strictKnownMarketplaces`, file locations | fetched 2026-10-15 |
 
 ## Maintenance procedure
 

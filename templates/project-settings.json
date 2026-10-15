@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "java-skill-base": {
+      "source": {
+        "source": "github",
+        "repo": "getdipakkumar2008-coder/SKillforJAVA"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "java-skills@java-skill-base": true
+  }
+}

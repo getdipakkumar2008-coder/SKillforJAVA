@@ -8,6 +8,9 @@
 #       both    -> skills in <target>/.claude/skills (GitHub Copilot also reads this folder)
 #                  + Copilot instruction files in <target>/.github
 #   --skills a,b,c                install only these skills (java-engineering-core is always added)
+#   --user                        install for the current user (skills in ~/.claude/skills and a managed
+#                                 block in ~/.claude/CLAUDE.md); no <target-repo> needed. Prefer the plugin
+#                                 (node scripts/configure.js user) which also adds the session hook.
 #   --force                       overwrite existing skill folders / instruction files
 #   --dry-run                     print what would happen, change nothing
 # Existing files are never overwritten without --force.
@@ -18,12 +21,13 @@ src_skills="$here/.claude/skills"
 src_copilot="$here/adapters/copilot"
 src_claude="$here/adapters/claude/CLAUDE.md"
 
-target=""; agent="both"; only=""; force=0; dry=0
+target=""; agent="both"; only=""; force=0; dry=0; user=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --agent) agent="${2:?--agent needs a value}"; shift 2;;
     --skills) only="${2:?--skills needs a value}"; shift 2;;
     --force) force=1; shift;;
+    --user) user=1; shift;;
     --dry-run) dry=1; shift;;
     -h|--help) sed -n '2,15p' "$0"; exit 0;;
     -*) echo "unknown option: $1" >&2; exit 2;;
@@ -31,7 +35,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-[ -n "$target" ] || { echo "usage: $0 <target-repo> [--agent claude|copilot|both] [--skills a,b] [--force] [--dry-run]" >&2; exit 2; }
+if [ "$user" -eq 1 ]; then target="$HOME"; agent="claude"; fi
+[ -n "$target" ] || { echo "usage: $0 <target-repo> | --user [--agent claude|copilot|both] [--skills a,b] [--force] [--dry-run]" >&2; exit 2; }
 [ -d "$target" ] || { echo "target directory does not exist: $target" >&2; exit 2; }
 case "$agent" in claude|copilot|both) ;; *) echo "--agent must be claude, copilot or both" >&2; exit 2;; esac
 target="$(cd "$target" && pwd)"
@@ -68,7 +73,23 @@ for s in $list; do
   echo "$verb skill: $s -> $dest"; installed=$((installed + 1))
 done
 
-if [ "$agent" = "claude" ] || [ "$agent" = "both" ]; then
+if [ "$user" -eq 1 ]; then
+  um="$HOME/.claude/CLAUDE.md"
+  begin='<!-- java-skill-base:begin -->'; end='<!-- java-skill-base:end -->'
+  if [ "$dry" -eq 1 ]; then
+    echo "[dry-run] update the java-skill-base block in $um"
+  else
+    mkdir -p "$HOME/.claude"
+    if [ -f "$um" ]; then
+      awk -v b="$begin" -v e="$end" '$0==b{skip=1} !skip{print} $0==e{skip=0}' "$um" > "$um.tmp"
+    else
+      : > "$um.tmp"
+    fi
+    { cat "$um.tmp"; echo "$begin"; cat "$src_claude"; echo "$end"; } > "$um"
+    rm -f "$um.tmp"
+    echo "updated: $um (java-skill-base block; re-running replaces it)"
+  fi
+elif [ "$agent" = "claude" ] || [ "$agent" = "both" ]; then
   if [ -e "$target/CLAUDE.md" ] && [ "$force" -eq 0 ]; then
     echo "skip (exists): $target/CLAUDE.md  - add the contents of adapters/claude/CLAUDE.md to it (the rule 'invoke java-engineering-core first' is what makes the core skill load reliably)"
   else
